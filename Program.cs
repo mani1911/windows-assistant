@@ -4,13 +4,12 @@ using Microsoft.CognitiveServices.Speech;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using System.Diagnostics;
 using WinAI.Plugins;
 public class Program
 {
     public static async Task Main()
     {
-
-
         // get env path
         var basePath = AppContext.BaseDirectory;
         var envPath = Path.Combine(basePath, "..", "..", "..", ".env");
@@ -28,6 +27,7 @@ public class Program
             apiKey: Environment.GetEnvironmentVariable("API_KEY"),
             apiVersion: Environment.GetEnvironmentVariable("API_VERSION"),
             serviceId: Environment.GetEnvironmentVariable("SERVICE_NAME")
+
         );
 
         builder.Plugins.AddFromType<SpotifyPlugin>();
@@ -37,38 +37,99 @@ public class Program
         var chatService = kernel.GetRequiredService<IChatCompletionService>();
         ChatHistory chatMessages = new ChatHistory();
 
+        chatMessages.AddSystemMessage("You are a helpful AI Windows Assistant, that can perform some tasks like playing music from spotify.");
+
+        bool isListeningForCommand = false;
+
         recognizer.Recognized += async (s, e) =>
         {
             if (e.Result.Reason == ResultReason.RecognizedSpeech)
             {
-                //Console.WriteLine($"Recognized: {e.Result.Text}");
-
-                var input = e.Result.Text.Trim();
-                chatMessages.AddUserMessage(input);
-
-                var completion = chatService.GetStreamingChatMessageContentsAsync(
-                    chatHistory: chatMessages,
-                    executionSettings: new OpenAIPromptExecutionSettings
-                    {
-                        ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-                    },
-                    kernel: kernel);
-
-                string fullMessage = "";
-                await foreach (var message in completion)
+                string input = e.Result.Text.Trim().ToLowerInvariant();
+                Debug.WriteLine($"Recognized: {input}");
+                if (!isListeningForCommand)
                 {
-                    Console.Write(message.Content);
-                    fullMessage += message.Content;
+                    if (input.StartsWith("hey") || input.StartsWith("hi"))
+                    {
+                        Debug.WriteLine("Wake word detected: entering command mode...");
+                        isListeningForCommand = true;
+                        Console.WriteLine("Listening for your command...");
+                    }
                 }
+                else
+                {
+                    Debug.WriteLine($"Command received: {input}");
+                    chatMessages.AddUserMessage(input);
 
-                chatMessages.AddAssistantMessage(fullMessage);
-                Console.WriteLine();
+                    var completion = chatService.GetStreamingChatMessageContentsAsync(
+                        chatHistory: chatMessages,
+                        executionSettings: new OpenAIPromptExecutionSettings
+                        {
+                            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+                        },
+                        kernel: kernel);
+
+                    string fullMessage = "";
+                    await foreach (var message in completion)
+                    {
+                        Console.Write(message.Content);
+                        fullMessage += message.Content;
+                    }
+
+                    chatMessages.AddAssistantMessage(fullMessage);
+                    Console.WriteLine();
+
+                    // Reset back to wake word mode after completing a command
+                    isListeningForCommand = false;
+                    Console.WriteLine("Say 'hey ior hi' to activate again.");
+                }
             }
             else if (e.Result.Reason == ResultReason.NoMatch)
             {
-                Console.WriteLine("No speech could be recognized.");
+                Console.WriteLine("No speech recognized.");
             }
         };
+
+        //recognizer.Recognized += async (s, e) =>
+        //{
+        //    if (e.Result.Reason == ResultReason.RecognizedSpeech)
+        //    {
+        //        //Console.WriteLine($"Recognized: {e.Result.Text}");
+
+        //        var input = e.Result.Text.Trim().ToLowerInvariant();
+
+        //        if(input.StartsWith("hi"))
+        //        {
+        //            Debug.WriteLine("Hey Jarvis detected, starting chat...");
+        //            chatMessages.AddUserMessage(input);
+
+        //            var completion = chatService.GetStreamingChatMessageContentsAsync(
+        //                chatHistory: chatMessages,
+        //                executionSettings: new OpenAIPromptExecutionSettings
+        //                {
+        //                    ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+        //                },
+        //                kernel: kernel);
+
+        //            string fullMessage = "";
+        //            await foreach (var message in completion)
+
+        //            {
+        //                Console.Write(message.Content);
+        //                fullMessage += message.Content;
+        //            }
+
+        //            chatMessages.AddAssistantMessage(fullMessage);
+        //            Console.WriteLine();
+        //        }
+
+
+        //    }
+        //    else if (e.Result.Reason == ResultReason.NoMatch)
+        //    {
+        //        Console.WriteLine("No speech could be recognized.");
+        //    }
+        //};
 
         await speechRecognition.StartSpeechRecognition();
 

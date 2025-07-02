@@ -3,7 +3,7 @@
 
 namespace Helpers
 {
-    class SpeechRecognition
+    internal class SpeechRecognition
     {
         private string _apikey;
         private string _region;

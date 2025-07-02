@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.SemanticKernel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using WinAI.Plugins;
 using WindowsInput;
 using WindowsInput.Native;
-using Microsoft.SemanticKernel;
-using System.ComponentModel;
 namespace WinAI.Plugins
 {
     internal class SpotifyPlugin
@@ -31,6 +33,30 @@ namespace WinAI.Plugins
         {
             var sim = new InputSimulator();
             sim.Keyboard.KeyPress(key);
+        }
+
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        private const int SW_RESTORE = 9;
+
+        public void FocusSpotify()
+        {
+            var spotifyProc = Process.GetProcessesByName("Spotify").FirstOrDefault();
+            if (spotifyProc != null)
+            {
+                IntPtr handle = spotifyProc.MainWindowHandle;
+                if (handle != IntPtr.Zero)
+                {
+                    ShowWindow(handle, SW_RESTORE); 
+                    Thread.Sleep(1000);              
+                    SetForegroundWindow(handle);    
+                }
+            }
         }
 
         [KernelFunction("open_spotify")]
@@ -198,8 +224,51 @@ namespace WinAI.Plugins
                 }
             }
         }
+
+        [KernelFunction, Description("Search and play a specific song on Spotify")]
+        public string PlaySong(string songName)
+        {
+            lock (mutexLock)
+            {
+                try
+                {
+                    if (!IsSpotifyRunning())
+                    {
+                        this.OpenSpotify();
+                    }
+                        
+
+                    if (string.IsNullOrWhiteSpace(songName))
+                        return "No song name provided.";
+
+                    var sim = new InputSimulator();
+                    FocusSpotify();
+
+                    Thread.Sleep(300); 
+                    sim.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_K);
+
+                    Thread.Sleep(300); 
+
+                    sim.Keyboard.TextEntry(songName);
+
+                    Thread.Sleep(1500);
+
+                    sim.Keyboard.ModifiedKeyStroke(VirtualKeyCode.SHIFT, VirtualKeyCode.RETURN);
+                    Thread.Sleep(1500);
+                    sim.Keyboard.KeyPress(VirtualKeyCode.ESCAPE);
+
+                    return $"Searched and tried to play \"{songName}\" in Spotify.";
+                }
+                catch (Exception)
+                {
+                    return "Failed to search or play the song in Spotify.";
+                }
+            }
+        }
     }
 }
+
+
 
 
 
