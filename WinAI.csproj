@@ -13,6 +13,7 @@
     <PackageReference Include="InputSimulator" Version="1.0.4" />
     <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.44.0" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.58.0" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
     <PackageReference Include="System.Speech" Version="9.0.6" />
   </ItemGroup>
 

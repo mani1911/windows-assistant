@@ -15,6 +15,10 @@ public class Program
         var envPath = Path.Combine(basePath, "..", "..", "..", ".env");
         Env.Load(envPath);
 
+        ////Thread.Sleep(2000); // wait for snipping tool to launch
+        //snip.CaptureFullScreen();
+        //return;
+
         var speechRecognition = new SpeechRecognition(Environment.GetEnvironmentVariable("SPEECH_API_KEY"), Environment.GetEnvironmentVariable("SPEECH_REGION"));
 
         // get the services
@@ -30,14 +34,17 @@ public class Program
 
         );
 
+        // adding all the plugins here
         builder.Plugins.AddFromType<SpotifyPlugin>();
+        builder.Plugins.AddFromType<SnippingToolPlugin>();
+        builder.Plugins.AddFromType<VolumePlugin>();
         var kernel = builder.Build();
 
 
         var chatService = kernel.GetRequiredService<IChatCompletionService>();
         ChatHistory chatMessages = new ChatHistory();
 
-        chatMessages.AddSystemMessage("You are a helpful AI Windows Assistant, that can perform some tasks like playing music from spotify.");
+        chatMessages.AddSystemMessage("You are a helpful AI Windows Assistant, that can perform some tasks like playing music from spotify and doing basic windows actions.");
 
         bool isListeningForCommand = false;
 

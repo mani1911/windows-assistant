@@ -44,7 +44,7 @@ namespace WinAI.Plugins
 
         private const int SW_RESTORE = 9;
 
-        public void FocusSpotify()
+        private void FocusSpotify()
         {
             var spotifyProc = Process.GetProcessesByName("Spotify").FirstOrDefault();
             if (spotifyProc != null)
