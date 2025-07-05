@@ -44,7 +44,18 @@ namespace WinAI.Plugins
 
         private const int SW_RESTORE = 9;
 
-        private void FocusSpotify()
+        private const int SW_MINIMIZE = 6;
+
+        //private const uint SWP_NOSIZE = 0x0001;
+
+        //private const uint SWP_NOMOVE = 0x0002;
+
+        //private const uint SWP_NOACTIVATE = 0x0010;
+
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+
+
+        public void FocusSpotify()
         {
             var spotifyProc = Process.GetProcessesByName("Spotify").FirstOrDefault();
             if (spotifyProc != null)
@@ -52,10 +63,19 @@ namespace WinAI.Plugins
                 IntPtr handle = spotifyProc.MainWindowHandle;
                 if (handle != IntPtr.Zero)
                 {
-                    ShowWindow(handle, SW_RESTORE); 
-                    Thread.Sleep(1000);              
+                    ShowWindow(handle, SW_RESTORE);
+                    Thread.Sleep(1000);
                     SetForegroundWindow(handle);    
                 }
+            }
+        }
+
+        private void MinimizeSpotify()
+        {
+            var spotifyProc = Process.GetProcessesByName("Spotify").FirstOrDefault();
+            if (spotifyProc != null && spotifyProc.MainWindowHandle != IntPtr.Zero)
+            {
+                ShowWindow(spotifyProc.MainWindowHandle, SW_MINIMIZE);
             }
         }
 
@@ -235,6 +255,7 @@ namespace WinAI.Plugins
                     if (!IsSpotifyRunning())
                     {
                         this.OpenSpotify();
+                        Thread.Sleep(2000); 
                     }
                         
 
@@ -256,6 +277,9 @@ namespace WinAI.Plugins
                     sim.Keyboard.ModifiedKeyStroke(VirtualKeyCode.SHIFT, VirtualKeyCode.RETURN);
                     Thread.Sleep(1500);
                     sim.Keyboard.KeyPress(VirtualKeyCode.ESCAPE);
+
+                    Thread.Sleep(1000);
+                    MinimizeSpotify();
 
                     return $"Searched and tried to play \"{songName}\" in Spotify.";
                 }

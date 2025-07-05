@@ -15,10 +15,6 @@ public class Program
         var envPath = Path.Combine(basePath, "..", "..", "..", ".env");
         Env.Load(envPath);
 
-        ////Thread.Sleep(2000); // wait for snipping tool to launch
-        //snip.CaptureFullScreen();
-        //return;
-
         var speechRecognition = new SpeechRecognition(Environment.GetEnvironmentVariable("SPEECH_API_KEY"), Environment.GetEnvironmentVariable("SPEECH_REGION"));
 
         // get the services
@@ -44,7 +40,7 @@ public class Program
         var chatService = kernel.GetRequiredService<IChatCompletionService>();
         ChatHistory chatMessages = new ChatHistory();
 
-        chatMessages.AddSystemMessage("You are a helpful AI Windows Assistant, that can perform some tasks like playing music from spotify and doing basic windows actions.");
+        chatMessages.AddSystemMessage($"You are a helpful AI Windows Assistant, named {Environment.GetEnvironmentVariable("SERVICE_NAME")} that can perform some tasks like playing music from spotify and doing basic windows actions.");
 
         bool isListeningForCommand = false;
 
@@ -56,7 +52,7 @@ public class Program
                 Debug.WriteLine($"Recognized: {input}");
                 if (!isListeningForCommand)
                 {
-                    if (input.StartsWith("hey") || input.StartsWith("hi"))
+                    if (input.StartsWith("alexa"))
                     {
                         Debug.WriteLine("Wake word detected: entering command mode...");
                         isListeningForCommand = true;
@@ -88,7 +84,7 @@ public class Program
 
                     // Reset back to wake word mode after completing a command
                     isListeningForCommand = false;
-                    Console.WriteLine("Say 'hey ior hi' to activate again.");
+                    Console.WriteLine("Say Alexa to activate again.");
                 }
             }
             else if (e.Result.Reason == ResultReason.NoMatch)
@@ -97,76 +93,9 @@ public class Program
             }
         };
 
-        //recognizer.Recognized += async (s, e) =>
-        //{
-        //    if (e.Result.Reason == ResultReason.RecognizedSpeech)
-        //    {
-        //        //Console.WriteLine($"Recognized: {e.Result.Text}");
-
-        //        var input = e.Result.Text.Trim().ToLowerInvariant();
-
-        //        if(input.StartsWith("hi"))
-        //        {
-        //            Debug.WriteLine("Hey Jarvis detected, starting chat...");
-        //            chatMessages.AddUserMessage(input);
-
-        //            var completion = chatService.GetStreamingChatMessageContentsAsync(
-        //                chatHistory: chatMessages,
-        //                executionSettings: new OpenAIPromptExecutionSettings
-        //                {
-        //                    ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-        //                },
-        //                kernel: kernel);
-
-        //            string fullMessage = "";
-        //            await foreach (var message in completion)
-
-        //            {
-        //                Console.Write(message.Content);
-        //                fullMessage += message.Content;
-        //            }
-
-        //            chatMessages.AddAssistantMessage(fullMessage);
-        //            Console.WriteLine();
-        //        }
-
-
-        //    }
-        //    else if (e.Result.Reason == ResultReason.NoMatch)
-        //    {
-        //        Console.WriteLine("No speech could be recognized.");
-        //    }
-        //};
-
         await speechRecognition.StartSpeechRecognition();
 
 
         return;
-
-        //while (true)
-        //{
-        //    Console.Write("User:> ");
-        //    var input = Console.ReadLine();
-
-        //    chatMessages.AddUserMessage(input);
-
-        //    var completion = chatService.GetStreamingChatMessageContentsAsync(
-        //        chatHistory: chatMessages,
-        //        executionSettings: new OpenAIPromptExecutionSettings
-        //        {
-        //            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-        //        },
-        //        kernel: kernel);
-
-        //    string fullMessage = "";
-        //    await foreach (var message in completion)
-        //    {
-        //        Console.Write(message.Content);
-        //        fullMessage += message.Content;
-        //    }
-
-        //    chatMessages.AddAssistantMessage(fullMessage);
-        //    Console.WriteLine();
-        //}
     }
 }
