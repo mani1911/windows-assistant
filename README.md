@@ -9,7 +9,8 @@ A simple voice assistant for Windows that can perform various tasks like searchi
 - Visual Studio (optional)
 
 ### Features
-- Control spotify using natural voice commands
+- Control spotify using natural voice commands [Open, Close, Play, Pause, Play a song given name or from an artist]
+- Control system volume [Increase, Decrease, Go to a specific percentage]
 - more to come... ;)
 
 
