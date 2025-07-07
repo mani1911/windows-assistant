@@ -12,6 +12,7 @@ A simple voice assistant for Windows that can perform various tasks like searchi
 - Control spotify using natural voice commands [Open, Close, Play, Pause, Play a song given name or from an artist]
 - Control system volume [Increase, Decrease, Go to a specific percentage]
 - take screenshots and save to location mentioned
+- brightness control of display device (working on multiple display device)
 - more to come... ;)
 
 
