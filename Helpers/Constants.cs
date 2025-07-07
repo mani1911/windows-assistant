@@ -17,7 +17,8 @@ namespace WinAI.Helpers
         SavedGames,
         SavedSearches,
         Pictures,
-        Documents
+        Documents,
+        Desktop
     }
 
     // known folders are defined in https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/known-folder-guids-for-file-dialog-custom-places
@@ -33,7 +34,8 @@ namespace WinAI.Helpers
             [KnownFolder.SavedGames] = new("4C5C32FF-BB9D-43B0-B5B4-2D72E54EAAA4"),
             [KnownFolder.SavedSearches] = new("7D1D3A04-DEBB-4115-95CF-2F29DA2920DA"),
             [KnownFolder.Pictures] = new("33E28130-4E1E-4676-835A-98395C3BC3BB"), // 33E28130-4E1E-4676-835A-98395C3BC3BB
-            [KnownFolder.Documents] = new("FDD39AD0-238F-46AF-ADB4-6C85480369C7")
+            [KnownFolder.Documents] = new("FDD39AD0-238F-46AF-ADB4-6C85480369C7"),
+            [KnownFolder.Desktop] = new("B4BFCC3A-DB2C-424C-B029-7FE99A87C641")
         };
 
         public static string GetPath(KnownFolder knownFolder)
@@ -52,5 +54,6 @@ namespace WinAI.Helpers
         static public readonly string DOWNLOADS = KnownFolders.GetPath(KnownFolder.Downloads);
         static public readonly string PICTURES = KnownFolders.GetPath(KnownFolder.Pictures);
         static public readonly string DOCUMENTS = KnownFolders.GetPath(KnownFolder.Documents);
+        static public readonly string DESKTOP = KnownFolders.GetPath(KnownFolder.Desktop);
     }
 }

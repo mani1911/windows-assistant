@@ -14,7 +14,7 @@ using WinAI.Helpers;
 
 namespace WinAI.Plugins
 {
-    internal class SnippingToolPlugin
+    internal class ScreenshotPlugin
     {
         private static readonly object mutexLock = new();
 
@@ -44,6 +44,9 @@ namespace WinAI.Plugins
                             break;
                         case "documents":
                             folderPath = Constants.DOCUMENTS;
+                            break;
+                         case "desktop":
+                            folderPath = Constants.DESKTOP;
                             break;
                         default:
                             break;

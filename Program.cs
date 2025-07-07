@@ -32,15 +32,16 @@ public class Program
 
         // adding all the plugins here
         builder.Plugins.AddFromType<SpotifyPlugin>();
-        builder.Plugins.AddFromType<SnippingToolPlugin>();
+        builder.Plugins.AddFromType<ScreenshotPlugin>();
         builder.Plugins.AddFromType<VolumePlugin>();
+        builder.Plugins.AddFromType<DisplayBrightnessPlugin>();
         var kernel = builder.Build();
 
 
         var chatService = kernel.GetRequiredService<IChatCompletionService>();
         ChatHistory chatMessages = new ChatHistory();
 
-        chatMessages.AddSystemMessage($"You are a helpful AI Windows Assistant, named {Environment.GetEnvironmentVariable("SERVICE_NAME")} that can perform some tasks like playing music from spotify and doing basic windows actions.");
+        chatMessages.AddSystemMessage($"You are a helpful AI Windows Assistant, named {Environment.GetEnvironmentVariable("SERVICE_NAME")}, that can perform some tasks like playing music from spotify and doing basic windows actions like screenshots, volume and brightnness control.");
 
         bool isListeningForCommand = false;
 
